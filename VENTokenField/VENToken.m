@@ -54,8 +54,15 @@
     self.titleLabel.textColor = self.colorScheme;
     self.titleLabel.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:16];
     [self.titleLabel sizeToFit];
-    self.frame = CGRectMake(CGRectGetMinX(self.frame), CGRectGetMinY(self.frame), CGRectGetMaxX(self.titleLabel.frame) + 3, CGRectGetHeight(self.frame));
+    self.frame = CGRectMake(CGRectGetMinX(self.frame), CGRectGetMinY(self.frame), CGRectGetMaxX(self.titleLabel.frame), CGRectGetHeight(self.frame));
     [self.titleLabel sizeToFit];
+    CGRect origFrame = self.titleLabel.frame;
+    self.titleLabel.frame = (CGRect){
+        .origin.x = origFrame.origin.x,
+        .origin.y = origFrame.origin.y -2,
+        .size = origFrame.size
+    };
+    
 }
 
 - (void)setHighlighted:(BOOL)highlighted
