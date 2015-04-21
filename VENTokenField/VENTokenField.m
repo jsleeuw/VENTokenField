@@ -32,7 +32,7 @@ static const CGFloat VENTokenFieldDefaultToLabelPadding     = 5.0;
 static const CGFloat VENTokenFieldDefaultTokenPadding       = 2.0;
 static const CGFloat VENTokenFieldDefaultMinInputWidth      = 80.0;
 static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
-
+static void *kObservingContentSizeChangesContext = &kObservingContentSizeChangesContext;
 
 @interface VENTokenField () <VENBackspaceTextFieldDelegate>
 
@@ -62,6 +62,10 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)awakeFromNib
 {
     [self setUpInit];
+}
+
+- (void)dealloc {
+    [self.scrollView removeObserver:self forKeyPath:NSStringFromSelector(@selector(contentSize))];
 }
 
 - (BOOL)isFirstResponder
@@ -106,6 +110,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
     [self layoutScrollView];
     [self reloadData];
+    
+    [self.scrollView addObserver:self forKeyPath:NSStringFromSelector(@selector(contentSize)) options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:&kObservingContentSizeChangesContext];
 }
 
 - (void)collapse
@@ -573,6 +579,22 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
             lastToken.highlighted = YES;
         }
         [self setCursorVisibility];
+    }
+}
+
+#pragma mark - VENBackspaceTextFieldDelegate
+
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (context == &kObservingContentSizeChangesContext) {
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(contentSize))]) {
+            if ([[change objectForKey:NSKeyValueChangeOldKey] CGSizeValue].height != [[change objectForKey:NSKeyValueChangeNewKey] CGSizeValue].height) {
+                if ([self.delegate respondsToSelector:@selector(tokenFieldFrameDidChange:)]) {
+                    [self.delegate tokenFieldFrameDidChange:self];
+                }
+            }
+        }
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
 
