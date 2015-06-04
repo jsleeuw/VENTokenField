@@ -265,6 +265,7 @@ static void *kObservingContentSizeChangesContext = &kObservingContentSizeChanges
 
     VENBackspaceTextField *inputTextField = self.inputTextField;
     inputTextField.text = @"";
+    inputTextField.text = [self.dataSource initialTextForTokenField:self];
     inputTextField.frame = CGRectMake(*currentX, *currentY + 1, inputTextFieldWidth, [self heightForToken] - 1);
     inputTextField.tintColor = self.colorScheme;
     [self.scrollView addSubview:inputTextField];
